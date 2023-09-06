@@ -1,10 +1,5 @@
 package main
 
-import (
-	"encoding/json"
-	"log"
-)
-
 // type Artists struct {
 // 	ID           int      `json:"id"`
 // 	Image        string   `json:"image"`
@@ -17,11 +12,21 @@ import (
 // 	Relations    string   `json:"relations"`
 // }
 
-type Jsonreader struct {
-	Name     string `json:"name"`
-	Capacity int    `json:"capacity"`
-	Time     int    `json:"time"`
-}
+// type Book struct {
+// 	Title  string `json:"title"`
+// 	Author Author `json:"author"`
+// }
+
+// type Author struct {
+// 	Name string `json:"name"`
+// 	Age  int    `json:"age"`
+// }
+
+// type Reader struct {
+// 	Name     string `json: "name"`
+// 	Battery  string `json: "battery"`
+// 	Capacity int    `json: "capacity"`
+// }
 
 func main() {
 
@@ -30,12 +35,26 @@ func main() {
 	// 	log.Print(err)
 	// }
 
-	jsonstring := `{"name": "battery-sensor", "capacity": "50", "time": "22"}`
+	// book := Book{
+	// 	Title: "Learning JSON",
+	// 	Author: Author{
+	// 		Name: "James",
+	// 		Age:  50}}
 
-	var reader Jsonreader
-	err := json.Unmarshal([]byte(jsonstring), &reader)
-	if err != nil {
-		log.Fatal(err)
-	}
+	// byteArray, err := json.MarshalIndent(book, "", "  ")
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+
+	// fmt.Println(string(byteArray))
+
+	// 	jsonString := `{"name": "Lithium", "battery": "Ion", "capacity": 50}`
+
+	// 	var Reader Reader
+	// 	err := json.Unmarshal([]byte(jsonString), &Reader)
+	// 	if err != nil {
+	// 		log.Fatal(err)
+	// 	}
+	// 	fmt.Printf("%+v", Reader)
 
 }
