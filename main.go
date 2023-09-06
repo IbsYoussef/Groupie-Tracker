@@ -1,32 +1,42 @@
 package main
 
-// type Artists struct {
-// 	ID           int      `json:"id"`
-// 	Image        string   `json:"image"`
-// 	Name         string   `json:"name"`
-// 	Members      []string `json:"members"`
-// 	CreationDate int      `json:"creationDate"`
-// 	FirstAlbum   string   `json:"firstAlbum"`
-// 	Locations    string   `json:"locations"`
-// 	ConcertDates string   `json:"concertDates"`
-// 	Relations    string   `json:"relations"`
-// }
+type API struct {
+	ID        int
+	Artists   Artists
+	Locations Locations
+	Dates     Dates
+	Relation  Relation
+}
 
-// type Book struct {
-// 	Title  string `json:"title"`
-// 	Author Author `json:"author"`
-// }
+type Artists []struct {
+	ID           int      `json:"id"`
+	Image        string   `json:"image"`
+	Name         string   `json:"name"`
+	Members      []string `json:"members"`
+	CreationDate int      `json:"creationDate"`
+	FirstAlbum   string   `json:"firstAlbum"`
+}
 
-// type Author struct {
-// 	Name string `json:"name"`
-// 	Age  int    `json:"age"`
-// }
+type Locations struct {
+	Index []struct {
+		ID        int      `json:"id"`
+		Locations []string `json:"locations"`
+	} `json:"index"`
+}
 
-// type Reader struct {
-// 	Name     string `json: "name"`
-// 	Battery  string `json: "battery"`
-// 	Capacity int    `json: "capacity"`
-// }
+type Dates struct {
+	Index []struct {
+		ID    int      `json:"id"`
+		Dates []string `json:"dates"`
+	} `json:"index"`
+}
+
+type Relation struct {
+	Index []struct {
+		ID             int64               `json:"id"`
+		DatesLocations map[string][]string `json:"datesLocations"`
+	} `json:"index"`
+}
 
 func main() {
 
@@ -34,27 +44,5 @@ func main() {
 	// if err != nil {
 	// 	log.Print(err)
 	// }
-
-	// book := Book{
-	// 	Title: "Learning JSON",
-	// 	Author: Author{
-	// 		Name: "James",
-	// 		Age:  50}}
-
-	// byteArray, err := json.MarshalIndent(book, "", "  ")
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-
-	// fmt.Println(string(byteArray))
-
-	// 	jsonString := `{"name": "Lithium", "battery": "Ion", "capacity": 50}`
-
-	// 	var Reader Reader
-	// 	err := json.Unmarshal([]byte(jsonString), &Reader)
-	// 	if err != nil {
-	// 		log.Fatal(err)
-	// 	}
-	// 	fmt.Printf("%+v", Reader)
 
 }
