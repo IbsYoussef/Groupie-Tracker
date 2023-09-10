@@ -1,5 +1,10 @@
 package main
 
+import (
+	"fmt"
+	"net/http"
+)
+
 type API struct {
 	ID        int
 	Artists   Artists
@@ -44,5 +49,12 @@ func main() {
 	// if err != nil {
 	// 	log.Print(err)
 	// }
+
+	fileserver := http.FileServer(http.Dir("."))
+	http.Handle("/", fileserver)
+
+	fmt.Printf("Starting Server on port: 8080\n")
+	fmt.Printf("Use Control 👉 C to stop hosting \n")
+	http.ListenAndServe(":8080", nil)
 
 }
