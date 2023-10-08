@@ -1,4 +1,4 @@
-package ujson
+package handlers
 
 import (
 	"html/template"

@@ -1,4 +1,4 @@
-package ujson
+package handlers
 
 type Errors struct {
 	Status  int
