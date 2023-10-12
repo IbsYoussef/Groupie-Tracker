@@ -1,80 +1,116 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
+	"text/template"
+	"time"
 )
 
-type API struct {
-	ID        int
-	Artists   Artists
-	Locations Locations
-	Dates     Dates
-	Relation  Relation
+func GetJSON(url string, target interface{}) error {
+	response, err := client.Get(url)
+	if err != nil {
+		return err
+	}
+
+	defer response.Body.Close()
+
+	if response.StatusCode != http.StatusOK {
+		return fmt.Errorf("API JSON responded with Error Code %d", response.StatusCode)
+	}
+
+	return json.NewDecoder(response.Body).Decode(target)
 }
 
-type Artists []struct {
-	ID           int      `json:"id"`
+func AppendToStruct() {
+	for i := range locations.Index {
+		API[i].Locations.Index = append(API[i].Locations.Index, locations.Index[i])
+	}
+	for i := range dates.Index {
+		API[i].Dates.Index = append(API[i].Dates.Index, dates.Index[i])
+	}
+	for i := range relations.Index {
+		API[i].Relations.Index = append(API[i].Relations.Index, relations.Index[i])
+	}
+}
+
+type Artist struct {
+	ID           int64    `json:"id"`
 	Image        string   `json:"image"`
 	Name         string   `json:"name"`
 	Members      []string `json:"members"`
-	CreationDate int      `json:"creationDate"`
+	CreationDate int64    `json:"creationDate"`
 	FirstAlbum   string   `json:"firstAlbum"`
+	Locations    Locations
+	Dates        Dates
+	Relations    Relations
 }
 
 type Locations struct {
-	Index []struct {
-		ID        int      `json:"id"`
-		Locations []string `json:"locations"`
-	} `json:"index"`
+	Index []Location `json:"index"`
+}
+type Location struct {
+	ID        int64    `json:"id"`
+	Locations []string `json:"locations"`
+	Dates     string   `json:"dates"`
 }
 
 type Dates struct {
-	Index []struct {
-		ID    int      `json:"id"`
-		Dates []string `json:"dates"`
-	} `json:"index"`
+	Index []Date `json:"index"`
+}
+type Date struct {
+	ID    int64    `json:"id"`
+	Dates []string `json:"dates"`
 }
 
-type Relation struct {
-	Index []struct {
-		ID             int64               `json:"id"`
-		DatesLocations map[string][]string `json:"datesLocations"`
-	} `json:"index"`
+type Relations struct {
+	Index []Relation `json:"index"`
 }
+type Relation struct {
+	ID             int64                  `json:"id"`
+	DatesLocations map[string]interface{} `json:"datesLocations"`
+}
+
+func init() {
+	tpl = template.Must(template.ParseGlob("templates/*.html"))
+}
+
+var tpl *template.Template
+var client *http.Client
+var API []Artist
+var locations Locations
+var dates Dates
+var relations Relations
 
 func main() {
+	client = &http.Client{Timeout: 10 * time.Second}
 
-	Artists_API, Aerr := http.Get("https://groupietrackers.herokuapp.com/api/artists")
-	if Aerr != nil {
-		log.Print(Aerr)
+	GetJSON("https://groupietrackers.herokuapp.com/api/artists", &API)
+	GetJSON("https://groupietrackers.herokuapp.com/api/locations", &locations)
+	GetJSON("https://groupietrackers.herokuapp.com/api/dates", &dates)
+	GetJSON("https://groupietrackers.herokuapp.com/api/relation", &relations)
+	AppendToStruct()
+
+	http.HandleFunc("/", indexHandler)
+	http.HandleFunc("/about", aboutHandler)
+
+	assets := http.FileServer(http.Dir("Assets"))
+	http.Handle("/Assets/", http.StripPrefix("/Assets/", assets))
+
+	fmt.Printf("Listening... on port 👉 :8080 \n")
+	fmt.Printf("Use 👉 Control+C to stop server \n")
+
+	if err := http.ListenAndServe(":8080", nil); err != nil {
+		log.Printf("Error code: %s", err.Error())
 	}
-	defer Artists_API.Body.Close()
+}
 
-	Locations_API, Lerr := http.Get("https://groupietrackers.herokuapp.com/api/locations")
-	if Lerr != nil {
-		log.Print(Lerr)
-	}
-	defer Locations_API.Body.Close()
+func indexHandler(w http.ResponseWriter, r *http.Request) {
+	tpl.ExecuteTemplate(w, "index.html", API)
+}
 
-	Dates_API, Derr := http.Get("https://groupietrackers.herokuapp.com/api/dates")
-	if Derr != nil {
-		log.Print(Derr)
-	}
-	defer Dates_API.Body.Close()
-
-	Relations_API, Rerr := http.Get("https://groupietrackers.herokuapp.com/api/relation")
-	if Rerr != nil {
-		log.Print(Rerr)
-	}
-	defer Relations_API.Body.Close()
-
-	fileserver := http.FileServer(http.Dir("."))
-	http.Handle("/", fileserver)
-
-	fmt.Printf("Starting Server on port: 8080\n")
-	fmt.Printf("Use Control 👉 C to stop hosting \n")
-	http.ListenAndServe(":8080", nil)
-
+func aboutHandler(w http.ResponseWriter, r *http.Request) {
+	tpl.ExecuteTemplate(w, "about.html", nil)
 }

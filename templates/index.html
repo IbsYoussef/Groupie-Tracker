@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="/Assets/CSS/index.css">
+    <title>Artists API</title>
+</head>
+<body>
+      <header class="page-header">
+            <nav class="nav">
+                <a href="/"><img src="/Assets/Images/Headphones Icon.jpg" class="headphones" alt="headphone icon" height="70px" width="70px"></a>
+                <a href="/about" class="about"><h3>About</h3></a>
+            </nav>
+        </header>
+    <main>
+        <section class="artist_wrapper">
+            <div class="page-title">
+                <h1 class="title">Artist API</h1>
+            </div>
+            <div class="instrument">
+                <img src="/Assets/Images/Guitar.jpg" alt="Guitar">
+            </div>
+            <div class="rev">
+                <img src="/Assets/Images/Guitar.jpg" alt="Guitar">
+            </div>
+
+            <div class="centered">
+                <section class="cards">
+                    {{range .}}
+                    <article class="card">
+                        <img src="{{.Image}}" alt="image">
+                        <p>Name: {{.Name}}
+                            <br><br>
+                            Members:
+                            {{range .Members}}
+                            {{.}}
+                            {{end}}
+                            <br><br>
+                            Created: {{.CreationDate}}   
+                            <br><br>
+                            First Album Released: {{.FirstAlbum}}
+                            <br><br>
+                            Tour Dates and Locations:
+                            <br>
+                            {{range .Relations.Index}}
+                            {{range $key, $value := .DatesLocations}}
+                            <li><strong>{{$key}}:</strong></li>
+                            {{$value}}
+                            {{end}} {{end}}
+                            <br><br>
+                        </p>     
+                     </article>
+                     <br><br>
+                     {{end}}
+                </section>
+        
+            </div>
+    </main>
+    <footer class="footer">
+        <img src="/Assets/Images/01_Founders_logo.jpeg" class="Logo" alt="01-Founders" height="35px" width="35px">
+        <div class="mini-title">
+            <h3>Powered By 01 Founders</h3>
+        </div>
+        <div class="git">
+            <a href="https://github.com/IbsYoussef">
+                <img src="/Assets/Images/github.png" alt="github" height="35px" width="35px">
+            </a>
+        </div>
+    </footer>
+
+    <script src="/Assets/JS/script.js"></script>
+</body>
+</html>
