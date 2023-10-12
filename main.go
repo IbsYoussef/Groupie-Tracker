@@ -108,9 +108,21 @@ func main() {
 }
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
-	tpl.ExecuteTemplate(w, "index.html", API)
+	if r.URL.Path != "/" {
+		http.Error(w, "Error 404, page not found", 404)
+	} else if r.Method != "GET" {
+		http.Error(w, "Error 500, server endpoint not located", 500)
+	} else {
+		tpl.ExecuteTemplate(w, "index.html", API)
+	}
 }
 
 func aboutHandler(w http.ResponseWriter, r *http.Request) {
-	tpl.ExecuteTemplate(w, "about.html", nil)
+	if r.URL.Path != "/about" {
+		http.Error(w, "Error 404, page not found", 404)
+	} else if r.Method != "GET" {
+		http.Error(w, "Error 500, server endpoint not located", 500)
+	} else {
+		tpl.ExecuteTemplate(w, "about.html", nil)
+	}
 }
