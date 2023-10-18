@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="/Assets/CSS/card-hover/card-hover.css">
+    <title>Document</title>
+</head>
+<body>
+
+    <div class="container">
+        {{range .}}
+        <div class="box">
+            <div class="img">
+                <img src="{{.Image}}" alt="JSON-Image">
+            </div>
+            <div class="content">
+                <h3>{{.Name}}</h3>
+                <p>
+                    Members:
+                    {{range .Members}}
+                    <li>{{.}}</li>
+                    {{end}}
+                    <br><br>
+                    Created: {{.CreationDate}}
+                    <br>
+                    FirstAlbum: {{.FirstAlbum}}
+                    <br>
+                    Tour Dates and Locations:
+                    <br>
+                    {{range .Relations.Index}}
+                    {{range $key, $value := .DatesLocations}}
+                    <li><strong>{{$key}}:</strong></li>
+                    {{$value}}
+                    {{end}} {{end}}
+                    <br><br>
+                </p>
+            </div>
+        </div>
+        {{end}}
+    </div>    
+    
+</body>
+</html>

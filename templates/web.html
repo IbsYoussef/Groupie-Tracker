@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/Assets/CSS/web-css/web_main.css">
+    <link rel="stylesheet" href="/Assets/CSS/web-css/card-container-layout.css">
+    <link rel="stylesheet" href="/Assets/CSS/web-css/card-content.css">
+    <title>Document</title>
+</head>
+<body>
+
+    <header>
+        <nav>
+
+        </nav>
+    </header>
+
+    <main>
+        <div class="card-container">
+            {{range .}}
+            <div class="card">
+                <img src="{{.Image}}" alt="guitarist">
+                <div class="card-content">
+                    <h3>{{.Name}} </h3>
+                    <p>
+                       <b>Members:</b> 
+                       <ul>
+                       {{range .Members}} 
+                       {{.}}
+                       <br> 
+                       {{end}}
+                    </ul>
+                    <br>
+                    <b>First Debut:</b> {{.CreationDate}}
+                    <br><br>
+                    <b>First Album Released:</b> {{.FirstAlbum}}
+                    </p>
+                </div>
+            </div>
+            {{end}}
+        </div>  
+    </main>
+
+    <footer>
+        
+    </footer>
+
+</body>
+</html>
