@@ -1,0 +1,16 @@
+footer{
+    margin: 0;
+    padding: 140px;
+    background-color: rgb(32, 35, 41);
+}
+
+.O1-content{
+    margin-top: -80px;
+    text-align: center;
+    color: white;
+}
+
+.github{
+    margin-top: 15px;
+    margin-left: 600px;
+}

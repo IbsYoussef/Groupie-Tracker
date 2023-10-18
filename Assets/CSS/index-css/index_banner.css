@@ -1,0 +1,11 @@
+.music-note{
+    margin-top: -340px;
+    margin-left: 600px;
+}
+
+.Reverse-guitar{
+    margin-top: -355px;
+    margin-left: 1535px;
+    transform: scaleX(-1);
+}
+

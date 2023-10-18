@@ -9,10 +9,9 @@
     <link rel="stylesheet" type="text/css" href="/Assets/CSS/index-css/index_card_content.css">
     <link rel="stylesheet" type="text/css" href="/Assets/CSS/index-css/index_button.css">
     <link rel="stylesheet" type="text/css" href="/Assets/CSS/index-css/index_footer.css">
-    <title>Artist API Main Page</title>
+    <title>Artist API Tour Dates Page</title>
 </head>
 <body>
-
     <header class="page-header">
         <div class="headphones">
             <a href="/"><img src="/Assets/Images/Headphones Icon.jpg" alt="Headphones" class="Headphones" width="70px" height="70px"></a>
@@ -52,17 +51,20 @@
                        <br> 
                        {{end}}
                     </ul>
-                    <br>
-                    <b>First Debut:</b> {{.CreationDate}}
                     <br><br>
-                    <b>First Album Released:</b> {{.FirstAlbum}}
+                    {{range .Relations.Index}}
+                    {{range $key, $value := .DatesLocations}}
+                    <li><strong>{{$key}}:</strong></li>
+                    {{$value}}
+                    <br>
+                    {{end}}{{end}}
                     </p>
                 </div>
             </div>
             {{end}}
         </div>
         <div class="event-button">
-            <a href="/tour-dates"><button class="button" role="button"><h3>Get Upcoming Tour Dates</h3></button></a>
+            <a href="/"><button class="button" role="button"><h3>Get Artist Info</h3></button></a>
         </div>
     </main>
     <br><br>
@@ -75,6 +77,6 @@
             <a href="https://github.com/IbsYoussef/Groupie-Tracker"><img src="/Assets/Images/github.png" alt="github" width="40px" height="40px"></a>
         </div>
     </footer>
-
+    
 </body>
 </html>

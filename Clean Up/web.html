@@ -10,13 +10,22 @@
 </head>
 <body>
 
-    <header>
-        <nav>
-
-        </nav>
+    <header class="page-header">
+        <div class="headphones">
+            <a href="/"><img src="/Assets/Images/Headphones Icon.jpg" alt="Headphones" class="Headphones" width="70px" height="70px"></a>
+        </div>
+        <div class="about">
+            <a href="/about" class="about"><h3>About</h3></a>
+        </div>
     </header>
 
     <main>
+        <section class="artist_wrapper">
+            <div class="page-title">
+                <h1 class="title">Artist API</h1>
+            </div>
+        </section>
+
         <div class="card-container">
             {{range .}}
             <div class="card">

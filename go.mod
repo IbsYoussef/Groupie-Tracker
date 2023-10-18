@@ -1,3 +1,3 @@
-module groupie-tracker
+module groupie-tracker/packages
 
-go 1.21
+go 1.21.3

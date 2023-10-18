@@ -95,8 +95,7 @@ func main() {
 
 	http.HandleFunc("/", indexHandler)
 	http.HandleFunc("/about", aboutHandler)
-	http.HandleFunc("/web", webHandler)
-	http.HandleFunc("/card", cardHandler)
+	http.HandleFunc("/tour-dates", tourDatesHandler)
 
 	assets := http.FileServer(http.Dir("Assets"))
 	http.Handle("/Assets/", http.StripPrefix("/Assets/", assets))
@@ -129,22 +128,12 @@ func aboutHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func webHandler(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path != "/web" {
+func tourDatesHandler(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path != "/tour-dates" {
 		http.Error(w, "Error 404, page not found", 404)
 	} else if r.Method != "GET" {
 		http.Error(w, "Error 500, server endpoint not located", 500)
 	} else {
-		tpl.ExecuteTemplate(w, "web.html", API)
-	}
-}
-
-func cardHandler(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path != "/card" {
-		http.Error(w, "Error 404, page not found", 404)
-	} else if r.Method != "GET" {
-		http.Error(w, "Error 500, server endpoint not located", 500)
-	} else {
-		tpl.ExecuteTemplate(w, "card-hover.html", API)
+		tpl.ExecuteTemplate(w, "tour-dates.html", API)
 	}
 }
