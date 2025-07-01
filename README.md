@@ -83,7 +83,7 @@ Groupie Tracker is a music-focused web application that fetches and displays dat
 
 Clone the repository to your local machine:
 ```bash
-git clone https://learn.01founders.co/git/iyoussef/Groupie-Tracker.git
+git clone https://github.com/IbsYoussef/Groupie-Tracker.git
 cd groupie-tracker
 ```
 
