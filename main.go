@@ -22,6 +22,7 @@ func main() {
 	fs := http.FileServer(http.Dir("assets"))
 	http.Handle("/assets/", http.StripPrefix("/assets/", fs))
 
-	fmt.Println("Server running at http://localhost:8080")
+	fmt.Println("🚀 Server running at http://localhost:8080")
+	fmt.Println("👉 Use Ctrl+C to stop the server")
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
