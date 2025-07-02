@@ -9,7 +9,7 @@ A web-based Go application that visually presents data from a RESTful music arti
 3. [✨ Features](#-features)  
 4. [🚀 Usage Instructions](#-usage-instructions)  
    - [📦 Clone the Repository](#-clone-the-repository)  
-   - [▶️ Run the web app](️#-run-the-web-app)  
+   - [▶️ Run the web app](#️-run-the-web-app)  
 5. [🌐 Live Demo](#-live-demo)  
 6. [🔭 Future Plans](#-future-plans)  
 7. [🤝 Contributions](#-contributions)  
