@@ -87,7 +87,7 @@ git clone https://learn.01founders.co/git/iyoussef/Groupie-Tracker.git
 cd groupie-tracker
 ```
 
-- ### ▶️ Run the web app 
+### ▶️ Run the web app 
 ```
 go run ./cmd
 ```
