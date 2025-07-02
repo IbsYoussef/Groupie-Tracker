@@ -9,7 +9,7 @@ A web-based Go application that visually presents data from a RESTful music arti
 3. [✨ Features](#-features)  
 4. [🚀 Usage Instructions](#-usage-instructions)  
    - [📦 Clone the Repository](#-clone-the-repository)  
-   - [▶️ Run the web app](#️-run-the-web-app) 
+   - [▶️ Run the Web App](#️-run-the-web-app)  
 5. [🌐 Live Demo](#-live-demo)  
 6. [🔭 Future Plans](#-future-plans)  
 7. [🤝 Contributions](#-contributions)  
@@ -83,11 +83,11 @@ Groupie Tracker is a music-focused web application that fetches and displays dat
 
 Clone the repository to your local machine:
 ```bash
-git clone https://learn.01founders.co/git/iyoussef/Groupie-Tracker.git
+git clone https://github.com/IbsYoussef/Groupie-Tracker.git
 cd groupie-tracker
 ```
 
-### ▶️ Run the web app 
+- ### ▶️ Run the web app 
 ```
 go run ./cmd
 ```
@@ -95,7 +95,9 @@ Visit http://localhost:8080 to view the application in your browser.
 
 ## 🌐 Live Demo
 
-🔗 Coming soon!
+🔗 [groupie-tracker-b9ur.onrender.com](https://groupie-tracker-b9ur.onrender.com)
+
+⚠️ **Note:** This project is hosted on Render’s free tier. After 15 minutes of inactivity, the server may spin down. You may experience a short delay (up to ~30 seconds) when visiting the site while it boots back up.
 
 ## 🔭 Future Plans
 Here are a few enhancements I plan to add in future updates:
