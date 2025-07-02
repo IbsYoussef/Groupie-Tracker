@@ -95,7 +95,9 @@ Visit http://localhost:8080 to view the application in your browser.
 
 ## 🌐 Live Demo
 
-🔗 Coming soon!
+🔗 [groupie-tracker-b9ur.onrender.com](https://groupie-tracker-b9ur.onrender.com)
+
+⚠️ **Note:** This project is hosted on Render’s free tier. After 15 minutes of inactivity, the server may spin down. You may experience a short delay (up to ~30 seconds) when visiting the site while it boots back up.
 
 ## 🔭 Future Plans
 Here are a few enhancements I plan to add in future updates:
