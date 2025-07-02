@@ -3,7 +3,7 @@ package internal
 import (
 	"encoding/json"
 	"fmt"
-	"groupie-tracker/packages/models"
+	"groupie-tracker/models"
 	"net/http"
 	"time"
 )
