@@ -141,4 +141,4 @@ Thank you for helping make ascii-art-web even better!
 
 
 ## 📄 License
-This project is licensed under the [MIT License](LICENSE).
+This project is licensed under the [MIT License](LICENSE.txt).
