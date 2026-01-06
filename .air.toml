@@ -1,0 +1,56 @@
+# Root directory of your project
+root = "."
+
+# Directory for test data (we don't have this yet)
+testdata_dir = "testdata"
+
+# Where Air puts compiled binaries (temporary)
+tmp_dir = "tmp"
+
+# Build configuration
+[build]
+  # The command to build your app
+  cmd = "go build -o ./tmp/main ./cmd/api"
+  # ↑ Compiles cmd/api/main.go → outputs to tmp/main
+
+  # Where the compiled binary is
+  bin = "./tmp/main"
+
+  # Wait 1 second after file change before rebuilding
+  # (prevents rebuilding on every keystroke)
+  delay = 1000
+
+  # Directories to ignore
+  exclude_dir = ["tmp", "vendor", "web/static"]
+  # ↑ Don't watch these (compiled files, dependencies, static assets)
+
+  # File extensions to watch
+  include_ext = ["go", "html", "tmpl"]
+  # ↑ Rebuild when .go, .html, or .tmpl files change
+
+  # Ignore test files
+  exclude_regex = ["_test.go"]
+
+  # Don't stop on errors (keep server running)
+  stop_on_error = false
+
+# Colors for terminal output (makes it pretty)
+[color]
+  build = "yellow"   # Build messages in yellow
+  main = "magenta"   # Main app output in magenta
+  runner = "green"   # Runner messages in green
+  watcher = "cyan"   # File watcher in cyan
+
+# Logging settings
+[log]
+  time = false       # Don't show timestamps
+  main_only = false  # Show all logs
+
+# Misc settings
+[misc]
+  clean_on_exit = false  # Don't delete tmp/ on exit
+
+# Screen settings
+[screen]
+  clear_on_rebuild = false  # Don't clear screen on rebuild
+  keep_scroll = true        # Keep scroll history
