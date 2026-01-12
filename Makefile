@@ -19,6 +19,8 @@ help:
 	@echo "  make test         - Run tests"
 	@echo "  make clean        - Clean build artifacts"
 	@echo "  make verify       - Verify setup is correct"
+	@echo ""
+	@echo "💡 Tip: Stop dev server with Ctrl+C"
 
 # Complete setup for new machine
 setup: install-tools deps env
