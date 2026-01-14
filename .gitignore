@@ -47,3 +47,6 @@ docker-compose.override.yml
 # Build artifacts
 dist/
 build/
+
+# Additional folders
+/tut
