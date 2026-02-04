@@ -37,7 +37,12 @@ func main() {
 	mux.Handle("GET /static/", http.StripPrefix("/static/", fs))
 
 	// ===== PUBLIC ROUTES =====
+	// Landing page
 	mux.HandleFunc("GET /", handlers.LandingHandler)
+
+	// Auth pages
+	mux.HandleFunc("GET /login", handlers.LoginHandler)
+	mux.HandleFunc("GET /register", handlers.RegisterHandler)
 
 	// Health check endpoint
 	mux.HandleFunc("GET /health", func(w http.ResponseWriter, r *http.Request) {
