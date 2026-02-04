@@ -1,8 +1,34 @@
 // Landing Page JavaScript
 
-// Smooth scroll for anchor links
 document.addEventListener('DOMContentLoaded', function() {
-    // Add smooth scroll behavior
+    // Mobile Menu Toggle
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    const mobileMenu = document.getElementById('mobileMenu');
+
+    if (mobileMenuBtn && mobileMenu) {
+        mobileMenuBtn.addEventListener('click', function() {
+            mobileMenuBtn.classList.toggle('open');
+            mobileMenu.classList.toggle('open');
+        });
+
+        // Close menu when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!mobileMenuBtn.contains(event.target) && !mobileMenu.contains(event.target)) {
+                mobileMenuBtn.classList.remove('open');
+                mobileMenu.classList.remove('open');
+            }
+        });
+
+        // Close menu on escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                mobileMenuBtn.classList.remove('open');
+                mobileMenu.classList.remove('open');
+            }
+        });
+    }
+
+    // Smooth scroll for anchor links
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
             e.preventDefault();
