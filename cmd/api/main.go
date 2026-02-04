@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/IbsYoussef/Groupie-Tracker/internal/handlers"
 	"github.com/joho/godotenv"
 )
 
@@ -27,22 +28,28 @@ func main() {
 		env = "development"
 	}
 
-	// Simple handler for testing
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "<h1>🎵 Groupie Tracker v2</h1>")
-		fmt.Fprintf(w, "<p>Coming Soon! This is the new and improved version.</p>")
-		fmt.Fprintf(w, "<p>Environment: %s</p>", env)
-	})
+	// Create new ServeMux
+	mux := http.NewServeMux()
 
-	http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+	// Serve static files
+	// Serve CSS, JS, and Images
+	fs := http.FileServer(http.Dir("./web/static"))
+	mux.Handle("GET /static/", http.StripPrefix("/static/", fs))
+
+	// ===== PUBLIC ROUTES =====
+	mux.HandleFunc("GET /", handlers.LandingHandler)
+
+	// Health check endpoint
+	mux.HandleFunc("GET /health", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		fmt.Fprintf(w, "OK")
 	})
 
+	// ===== SERVER STARTUP =====
 	log.Printf("🚀 Server starting on port %s in %s mode", port, env)
 	log.Printf("📍 Visit: http://localhost:%s", port)
 
-	if err := http.ListenAndServe(":"+port, nil); err != nil {
+	if err := http.ListenAndServe(":"+port, mux); err != nil {
 		log.Fatalf("❌ Server failed to start: %v", err)
 	}
 }
