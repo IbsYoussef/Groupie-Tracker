@@ -6,11 +6,18 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/IbsYoussef/Groupie-Tracker/internal/database"
 	"github.com/IbsYoussef/Groupie-Tracker/internal/handlers"
 	"github.com/joho/godotenv"
 )
 
 func main() {
+	// === DATABASE INITIALIZATION ===
+	if err := database.Initialize(); err != nil {
+		log.Fatalf("❌ Database connection failed: %v", err)
+	}
+	defer database.Close()
+
 	// Load environment variables in development
 	if os.Getenv("ENV") != "production" {
 		if err := godotenv.Load(); err != nil {
