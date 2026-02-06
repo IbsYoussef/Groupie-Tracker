@@ -24,8 +24,8 @@ func init() {
 	log.Println("✅ Templates loaded successfully")
 }
 
-// renderTemplate is a helper function to render templates with error handling
-func renderTemplate(w http.ResponseWriter, tmpl string, data interface{}) {
+// RenderTemplate is a helper function to render templates with error handling
+func RenderTemplate(w http.ResponseWriter, tmpl string, data interface{}) {
 	// Set content type
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 

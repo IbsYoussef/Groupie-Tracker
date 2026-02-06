@@ -50,6 +50,11 @@ func main() {
 	// Auth pages
 	mux.HandleFunc("GET /login", handlers.LoginHandler)
 	mux.HandleFunc("GET /register", handlers.RegisterHandler)
+	mux.HandleFunc("POST /register", handlers.RegisterUserHandler)
+
+	// === PROTECTED ROUTES ===
+	mux.HandleFunc("GET /discover", handlers.DiscoverHandler)
+	mux.HandleFunc("GET /logout", handlers.LogoutHandler)
 
 	// Health check endpoint
 	mux.HandleFunc("GET /health", func(w http.ResponseWriter, r *http.Request) {
