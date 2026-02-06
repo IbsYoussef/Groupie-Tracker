@@ -1,0 +1,38 @@
+services:
+  # PostgreSQL 18 Database
+  postgres:
+    # Official PostgreSQL 18 on Alpine Linux (lightweight ~80MB)
+    image: postgres:18-alpine
+
+    # Container name for easy reference
+    container_name: groupie-tracker-db
+
+    # Restart policy
+    restart: unless-stopped
+
+    # Port mapping: localhost:5432 -> container:5432
+    ports:
+      - "5432:5432"
+
+    # Database configuration
+    environment:
+      # Database credentials
+      POSTGRES_USER: groupie_user
+      POSTGRES_PASSWORD: groupie_password
+      POSTGRES_DB: groupie_tracker
+
+    # Data persistence and initialization
+    volumes:
+      # Store database files locally so data persists
+      - ./postgres-data:/var/lib/postgresql/data
+
+      # Auto-run SQL scripts on first startup
+      # Any .sql files in scripts/init-db/ will execute automatically
+      - ./scripts/init-db:/docker-entrypoint-initdb.d
+
+    # Health check - confirms PostgreSQL is ready
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U groupie_user -d groupie_tracker"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
