@@ -49,6 +49,7 @@ func main() {
 
 	// Auth pages
 	mux.HandleFunc("GET /login", handlers.LoginHandler)
+	mux.HandleFunc("POST /login", handlers.LoginUserHandler)
 	mux.HandleFunc("GET /register", handlers.RegisterHandler)
 	mux.HandleFunc("POST /register", handlers.RegisterUserHandler)
 

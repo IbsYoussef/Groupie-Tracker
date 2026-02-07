@@ -89,3 +89,81 @@ func RegisterUserHandler(w http.ResponseWriter, r *http.Request) {
 	// Redirect to discover page
 	http.Redirect(w, r, "/discover", http.StatusSeeOther)
 }
+
+// LoginUserHandler processes the login form
+func LoginUserHandler(w http.ResponseWriter, r *http.Request) {
+	// Parse form data
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "Invalid form data", http.StatusBadRequest)
+		return
+	}
+
+	email := r.FormValue("email")
+	password := r.FormValue("password")
+
+	// Validation
+	if email == "" || password == "" {
+		http.Error(w, "Email and password are required", http.StatusBadRequest)
+		return
+	}
+
+	// Authenticate user
+	user, err := models.Authenticate(database.DB, email, password)
+	if err != nil {
+		if err == models.ErrInvalidCredentials {
+			http.Error(w, "Invalid email or password", http.StatusUnauthorized)
+			return
+		}
+		log.Printf("Error authenticating user: %v", err)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+
+	log.Printf("✅ User authenticated: %s", user.Username)
+
+	// Create session
+	session, err := models.CreateSession(database.DB, user.ID)
+	if err != nil {
+		log.Printf("Error creating session: %v", err)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+
+	// Set session cookie
+	http.SetCookie(w, &http.Cookie{
+		Name:     "session_token",
+		Value:    session.Token,
+		Path:     "/",
+		Expires:  session.ExpiresAt,
+		HttpOnly: true,
+		Secure:   false, // Set to true in production with HTTPS
+		SameSite: http.SameSiteLaxMode,
+	})
+
+	log.Printf("✅ Session created for user: %s", user.Username)
+
+	// Redirect to discover page
+	http.Redirect(w, r, "/discover", http.StatusSeeOther)
+}
+
+// LogoutHandler logs out the user
+func LogoutHandler(w http.ResponseWriter, r *http.Request) {
+	// Get session token from cookie
+	cookie, err := r.Cookie("session_token")
+	if err == nil {
+		// Delete session from database
+		models.DeleteSession(database.DB, cookie.Value)
+	}
+
+	// Clear cookie
+	http.SetCookie(w, &http.Cookie{
+		Name:     "session_token",
+		Value:    "",
+		Path:     "/",
+		MaxAge:   -1, // Delete cookie
+		HttpOnly: true,
+	})
+
+	// Redirect to landing page
+	http.Redirect(w, r, "/", http.StatusSeeOther)
+}
