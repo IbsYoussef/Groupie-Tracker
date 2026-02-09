@@ -49,4 +49,4 @@ dist/
 build/
 
 # Additional folders
-/tutpostgres-data/
+postgres-data/
