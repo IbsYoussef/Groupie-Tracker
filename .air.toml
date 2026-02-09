@@ -21,7 +21,7 @@ tmp_dir = "tmp"
   delay = 1000
 
   # Directories to ignore
-  exclude_dir = ["tmp", "vendor", "web/static"]
+  exclude_dir = ["tmp", "vendor", "web/static", "postgres-data"]
   # ↑ Don't watch these (compiled files, dependencies, static assets)
 
   # File extensions to watch

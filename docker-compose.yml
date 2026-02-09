@@ -3,12 +3,13 @@ services:
   postgres:
     # Official PostgreSQL 18 on Alpine Linux (lightweight ~80MB)
     image: postgres:18-alpine
-
     # Container name for easy reference
     container_name: groupie-tracker-db
-
     # Restart policy
     restart: unless-stopped
+
+    # Run as current user to avoid permission issues
+    user: "${UID:-1000}:${GID:-1000}"
 
     # Port mapping: localhost:5432 -> container:5432
     ports:
@@ -20,15 +21,19 @@ services:
       POSTGRES_USER: groupie_user
       POSTGRES_PASSWORD: groupie_password
       POSTGRES_DB: groupie_tracker
+      PGDATA: /var/lib/postgresql/data/pgdata
 
     # Data persistence and initialization
     volumes:
-      # Store database files locally so data persists
-      - ./postgres-data:/var/lib/postgresql/data
+      # Explicit bind mount with type specified
+      - type: bind
+        source: ./postgres-data
+        target: /var/lib/postgresql/data
 
-      # Auto-run SQL scripts on first startup
-      # Any .sql files in scripts/init-db/ will execute automatically
-      - ./scripts/init-db:/docker-entrypoint-initdb.d
+      # Init scripts
+      - type: bind
+        source: ./scripts/init-db
+        target: /docker-entrypoint-initdb.d
 
     # Health check - confirms PostgreSQL is ready
     healthcheck:

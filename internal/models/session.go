@@ -16,9 +16,10 @@ type Session struct {
 	CreatedAt time.Time
 }
 
-// Session duration
+// SessionDuration Session duration
 const (
-	SessionDuration = 7 * 24 * time.Hour // 7 days
+	SessionDuration           = 7 * 24 * time.Hour  // 7 days (default)
+	RememberMeSessionDuration = 30 * 24 * time.Hour // 30 days (remember me)
 )
 
 // GenerateSessionToken creates a secure random token
@@ -34,7 +35,7 @@ func GenerateSessionToken() (string, error) {
 }
 
 // CreateSession creates a new session for a user
-func CreateSession(db *sql.DB, userID string) (*Session, error) {
+func CreateSession(db *sql.DB, userID string, rememberMe bool) (*Session, error) {
 	// Generate secure token
 	token, err := GenerateSessionToken()
 	if err != nil {
@@ -42,7 +43,12 @@ func CreateSession(db *sql.DB, userID string) (*Session, error) {
 	}
 
 	// Set expiration
-	expiresAt := time.Now().Add(SessionDuration)
+	var expiresAt time.Time
+	if rememberMe {
+		expiresAt = time.Now().Add(RememberMeSessionDuration)
+	} else {
+		expiresAt = time.Now().Add(SessionDuration)
+	}
 
 	// Insert into database
 	query := `

@@ -66,7 +66,7 @@ func RegisterUserHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("✅ User created: %s (%s)", user.Username, user.Email)
 
 	// Create session
-	session, err := models.CreateSession(database.DB, user.ID)
+	session, err := models.CreateSession(database.DB, user.ID, false)
 	if err != nil {
 		log.Printf("Error creating session: %v", err)
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
@@ -100,6 +100,8 @@ func LoginUserHandler(w http.ResponseWriter, r *http.Request) {
 
 	email := r.FormValue("email")
 	password := r.FormValue("password")
+	// Check if "Remember me" checkbox was checked
+	rememberMe := r.FormValue("rememberMe") == "on"
 
 	// Validation
 	if email == "" || password == "" {
@@ -122,7 +124,7 @@ func LoginUserHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("✅ User authenticated: %s", user.Username)
 
 	// Create session
-	session, err := models.CreateSession(database.DB, user.ID)
+	session, err := models.CreateSession(database.DB, user.ID, rememberMe)
 	if err != nil {
 		log.Printf("Error creating session: %v", err)
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
@@ -140,7 +142,11 @@ func LoginUserHandler(w http.ResponseWriter, r *http.Request) {
 		SameSite: http.SameSiteLaxMode,
 	})
 
-	log.Printf("✅ Session created for user: %s (expires: %s)", user.Username, session.ExpiresAt.Format("2006-01-02 15:04:05"))
+	if rememberMe {
+		log.Printf("✅ Session created for user: %s (remember me: 30 days, expires: %s)", user.Username, session.ExpiresAt.Format("2006-01-02 15:04:05"))
+	} else {
+		log.Printf("✅ Session created for user: %s (expires: %s)", user.Username, session.ExpiresAt.Format("2006-01-02 15:04:05"))
+	}
 
 	// Redirect to discover page
 	http.Redirect(w, r, "/discover", http.StatusSeeOther)
