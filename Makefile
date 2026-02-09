@@ -84,6 +84,23 @@ run:
 	@echo "🚀 Starting server..."
 	go run cmd/api/main.go
 
+# Run docker container
+.PHONY: docker-start
+docker-start:
+	@echo "🐳 Starting Docker with current user permissions..."
+	@UID=$$(id -u) GID=$$(id -g) docker compose up -d
+	@echo "✅ Docker containers started"
+
+.PHONY: docker-stop
+docker-stop:
+	@echo "🛑 Stopping Docker containers..."
+	@docker compose down
+	@echo "✅ Docker containers stopped"
+
+.PHONY: docker-restart
+docker-restart: docker-stop docker-start
+	@echo "🔄 Docker containers restarted"
+
 # Build the application
 build:
 	@echo "🔨 Building application..."
