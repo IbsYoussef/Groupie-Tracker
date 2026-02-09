@@ -84,7 +84,7 @@ func RegisterUserHandler(w http.ResponseWriter, r *http.Request) {
 		SameSite: http.SameSiteLaxMode,
 	})
 
-	log.Printf("✅ Session created for user: %s", user.Username)
+	log.Printf("✅ Session created for user: %s (expires: %s)", user.Username, session.ExpiresAt.Format("2006-01-02 15:04:05"))
 
 	// Redirect to discover page
 	http.Redirect(w, r, "/discover", http.StatusSeeOther)
@@ -140,7 +140,7 @@ func LoginUserHandler(w http.ResponseWriter, r *http.Request) {
 		SameSite: http.SameSiteLaxMode,
 	})
 
-	log.Printf("✅ Session created for user: %s", user.Username)
+	log.Printf("✅ Session created for user: %s (expires: %s)", user.Username, session.ExpiresAt.Format("2006-01-02 15:04:05"))
 
 	// Redirect to discover page
 	http.Redirect(w, r, "/discover", http.StatusSeeOther)
@@ -151,8 +151,26 @@ func LogoutHandler(w http.ResponseWriter, r *http.Request) {
 	// Get session token from cookie
 	cookie, err := r.Cookie("session_token")
 	if err == nil {
+		// Get session info before deleting (for logging)
+		session, _ := models.GetSessionByToken(database.DB, cookie.Value)
+
 		// Delete session from database
-		models.DeleteSession(database.DB, cookie.Value)
+		err := models.DeleteSession(database.DB, cookie.Value)
+		if err != nil {
+			log.Printf("⚠️  Error deleting session: %v", err)
+		} else {
+			if session != nil {
+				// Get user info for better logging
+				user, _ := models.GetUserByID(database.DB, session.UserID)
+				if user != nil {
+					log.Printf("🚪 User logged out: %s (session deleted)", user.Username)
+				} else {
+					log.Printf("🚪 Session deleted: %s", cookie.Value[:16]+"...")
+				}
+			}
+		}
+	} else {
+		log.Printf("🚪 Logout attempted with no active session")
 	}
 
 	// Clear cookie
@@ -160,9 +178,11 @@ func LogoutHandler(w http.ResponseWriter, r *http.Request) {
 		Name:     "session_token",
 		Value:    "",
 		Path:     "/",
-		MaxAge:   -1, // Delete cookie
+		MaxAge:   -1,
 		HttpOnly: true,
 	})
+
+	log.Printf("🍪 Session cookie cleared")
 
 	// Redirect to landing page
 	http.Redirect(w, r, "/", http.StatusSeeOther)
