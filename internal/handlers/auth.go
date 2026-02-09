@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/IbsYoussef/Groupie-Tracker/internal/config"
 	"github.com/IbsYoussef/Groupie-Tracker/internal/database"
 	"github.com/IbsYoussef/Groupie-Tracker/internal/models"
 )
@@ -65,8 +66,11 @@ func RegisterUserHandler(w http.ResponseWriter, r *http.Request) {
 
 	log.Printf("✅ User created: %s (%s)", user.Username, user.Email)
 
-	// Create session
-	session, err := models.CreateSession(database.DB, user.ID, false)
+	// Load config for session secret
+	cfg := config.Load()
+
+	// Create session (auto-register doesn't use remember me)
+	session, err := models.CreateSession(database.DB, user.ID, false, cfg.SessionSecret)
 	if err != nil {
 		log.Printf("Error creating session: %v", err)
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
@@ -123,8 +127,11 @@ func LoginUserHandler(w http.ResponseWriter, r *http.Request) {
 
 	log.Printf("✅ User authenticated: %s", user.Username)
 
+	// Load config for session secret
+	cfg := config.Load()
+
 	// Create session
-	session, err := models.CreateSession(database.DB, user.ID, rememberMe)
+	session, err := models.CreateSession(database.DB, user.ID, rememberMe, cfg.SessionSecret)
 	if err != nil {
 		log.Printf("Error creating session: %v", err)
 		http.Error(w, "Internal server error", http.StatusInternalServerError)

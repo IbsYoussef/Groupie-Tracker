@@ -6,18 +6,13 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/IbsYoussef/Groupie-Tracker/internal/config"
 	"github.com/IbsYoussef/Groupie-Tracker/internal/database"
 	"github.com/IbsYoussef/Groupie-Tracker/internal/handlers"
 	"github.com/joho/godotenv"
 )
 
 func main() {
-	// === DATABASE INITIALIZATION ===
-	if err := database.Initialize(); err != nil {
-		log.Fatalf("❌ Database connection failed: %v", err)
-	}
-	defer database.Close()
-
 	// Load environment variables in development
 	if os.Getenv("ENV") != "production" {
 		if err := godotenv.Load(); err != nil {
@@ -25,49 +20,51 @@ func main() {
 		}
 	}
 
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "8080"
-	}
+	// Load configuration
+	cfg := config.Load()
 
-	env := os.Getenv("ENV")
-	if env == "" {
-		env = "development"
+	// === DATABASE INITIALIZATION ===
+	if err := database.Initialize(
+		cfg.DBHOST,
+		cfg.DBPORT,
+		cfg.DBUSER,
+		cfg.DBPASSWORD,
+		cfg.DBNAME,
+		cfg.DBSSLMODE,
+	); err != nil {
+		log.Fatalf("❌ Database connection failed: %v", err)
 	}
+	defer database.Close()
 
 	// Create new ServeMux
 	mux := http.NewServeMux()
 
 	// Serve static files
-	// Serve CSS, JS, and Images
 	fs := http.FileServer(http.Dir("./web/static"))
 	mux.Handle("GET /static/", http.StripPrefix("/static/", fs))
 
 	// ===== PUBLIC ROUTES =====
-	// Landing page
 	mux.HandleFunc("GET /", handlers.LandingHandler)
-
-	// Auth pages
 	mux.HandleFunc("GET /login", handlers.LoginHandler)
-	mux.HandleFunc("POST /login", handlers.LoginUserHandler)
 	mux.HandleFunc("GET /register", handlers.RegisterHandler)
 	mux.HandleFunc("POST /register", handlers.RegisterUserHandler)
+	mux.HandleFunc("POST /login", handlers.LoginUserHandler)
 
 	// === PROTECTED ROUTES ===
 	mux.HandleFunc("GET /discover", handlers.DiscoverHandler)
 	mux.HandleFunc("GET /logout", handlers.LogoutHandler)
 
-	// Health check endpoint
+	// Health check
 	mux.HandleFunc("GET /health", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		fmt.Fprintf(w, "OK")
 	})
 
 	// ===== SERVER STARTUP =====
-	log.Printf("🚀 Server starting on port %s in %s mode", port, env)
-	log.Printf("📍 Visit: http://localhost:%s", port)
+	log.Printf("🚀 Server starting on port %s in %s mode", cfg.Port, cfg.Env)
+	log.Printf("📍 Visit: http://localhost:%s", cfg.Port)
 
-	if err := http.ListenAndServe(":"+port, mux); err != nil {
+	if err := http.ListenAndServe(":"+cfg.Port, mux); err != nil {
 		log.Fatalf("❌ Server failed to start: %v", err)
 	}
 }

@@ -1,8 +1,10 @@
 package handlers
 
 import (
+	"log"
 	"net/http"
 
+	"github.com/IbsYoussef/Groupie-Tracker/internal/config"
 	"github.com/IbsYoussef/Groupie-Tracker/internal/database"
 	"github.com/IbsYoussef/Groupie-Tracker/internal/models"
 )
@@ -12,7 +14,16 @@ func DiscoverHandler(w http.ResponseWriter, r *http.Request) {
 	// Get session token from cookie
 	cookie, err := r.Cookie("session_token")
 	if err != nil {
-		// No cookie = not logged in
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+
+	// Load config for session secret
+	cfg := config.Load()
+
+	// Verify token signature
+	if !models.VerifySessionToken(cfg.SessionSecret, cookie.Value) {
+		log.Printf("⚠️  Invalid session token signature")
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
 	}
