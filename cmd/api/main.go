@@ -9,6 +9,7 @@ import (
 	"github.com/IbsYoussef/Groupie-Tracker/internal/config"
 	"github.com/IbsYoussef/Groupie-Tracker/internal/database"
 	"github.com/IbsYoussef/Groupie-Tracker/internal/handlers"
+	"github.com/IbsYoussef/Groupie-Tracker/internal/services/spotify"
 	"github.com/joho/godotenv"
 )
 
@@ -34,7 +35,9 @@ func main() {
 	); err != nil {
 		log.Fatalf("❌ Database connection failed: %v", err)
 	}
-	defer database.Close()
+	defer func() {
+		_ = database.Close()
+	}()
 
 	// Create new ServeMux
 	mux := http.NewServeMux()
@@ -50,6 +53,10 @@ func main() {
 	mux.HandleFunc("POST /register", handlers.RegisterUserHandler)
 	mux.HandleFunc("POST /login", handlers.LoginUserHandler)
 
+	// OAuth route
+	mux.HandleFunc("GET /auth/spotify", spotify.SpotifyLoginHandler)
+	mux.HandleFunc("GET /auth/spotify/callback", spotify.SpotifyCallbackHandler)
+
 	// === PROTECTED ROUTES ===
 	mux.HandleFunc("GET /discover", handlers.DiscoverHandler)
 	mux.HandleFunc("GET /logout", handlers.LogoutHandler)
@@ -57,14 +64,14 @@ func main() {
 	// Health check
 	mux.HandleFunc("GET /health", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
-		fmt.Fprintf(w, "OK")
+		fmt.Fprint(w, "OK")
 	})
 
 	// ===== SERVER STARTUP =====
 	log.Printf("🚀 Server starting on port %s in %s mode", cfg.Port, cfg.Env)
-	log.Printf("📍 Visit: http://localhost:%s", cfg.Port)
+	log.Printf("📍 Visit: http://127.0.0.1:%s", cfg.Port)
 
-	if err := http.ListenAndServe(":"+cfg.Port, mux); err != nil {
+	if err := http.ListenAndServe("127.0.0.1:"+cfg.Port, mux); err != nil {
 		log.Fatalf("❌ Server failed to start: %v", err)
 	}
 }

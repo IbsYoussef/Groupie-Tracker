@@ -156,3 +156,67 @@ func Authenticate(db *sql.DB, email, password string) (*User, error) {
 
 	return user, nil
 }
+
+// GetUserByOAuth retrieves a user by OAuth provider and ID
+func GetUserByOAuth(db *sql.DB, provider, oauthID string) (*User, error) {
+	query := `
+		SELECT id, username, email, password_hash, oauth_provider, oauth_id, created_at, updated_at
+		FROM users
+		WHERE oauth_provider = $1 AND oauth_id = $2
+	`
+
+	user := &User{}
+	err := db.QueryRow(query, provider, oauthID).Scan(
+		&user.ID,
+		&user.Username,
+		&user.Email,
+		&user.PasswordHash,
+		&user.OAuthProvider,
+		&user.OAuthID,
+		&user.CreatedAt,
+		&user.UpdatedAt)
+
+	if err == sql.ErrNoRows {
+		return nil, ErrUserNotFound
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
+}
+
+// CreateOAuthUser creates a new user from OAuth provider
+func CreateOAuthUser(db *sql.DB, username, email, provider, oauthID string) (*User, error) {
+	query := `
+		INSERT INTO users (username, email, oauth_provider, oauth_id)
+		VALUES ($1, $2, $3, $4)
+		RETURNING id, username, email, password_hash, oauth_provider, oauth_id, created_at, updated_at
+	`
+
+	user := &User{}
+	err := db.QueryRow(query, username, email, provider, oauthID).Scan(
+		&user.ID,
+		&user.Username,
+		&user.Email,
+		&user.PasswordHash,
+		&user.OAuthProvider,
+		&user.OAuthID,
+		&user.CreatedAt,
+		&user.UpdatedAt,
+	)
+
+	if err != nil {
+		// Check for duplicate email
+		if err.Error() == `pq: duplicate key value violates unique constraint "users_email_key"` {
+			return nil, ErrEmailExists
+		}
+		// Check for duplicate username
+		if err.Error() == `pq: duplicate key value violates unique constraint "users_username_key"` {
+			return nil, ErrUsernameExists
+		}
+		return nil, err
+	}
+	return user, nil
+}

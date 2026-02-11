@@ -62,3 +62,11 @@ document.addEventListener('DOMContentLoaded', function() {
     // ===== OAUTH BUTTONS =====
     // TODO: Implement OAuth flow when ready
 });
+
+// Spotify OAuth button
+const spotifyBtn = document.getElementById('spotifyBtn');
+if (spotifyBtn) {
+    spotifyBtn.addEventListener('click', function () {
+        window.location.href = '/auth/spotify';
+    })
+}
