@@ -15,10 +15,16 @@ func init() {
 	var err error
 
 	// Parse all templates from the templates directory
-	templatePath := filepath.Join("web", "templates", "*.html")
-	tpl, err = template.ParseGlob(templatePath)
+	tpl, err = template.ParseGlob(filepath.Join("web", "templates", "*.html"))
 	if err != nil {
 		log.Fatalf("❌ Error parsing templates: %v", err)
+	}
+
+	// Parse component templates
+	componentPath := filepath.Join("web", "templates", "components", "*.html")
+	tpl, err = tpl.ParseGlob(componentPath)
+	if err != nil {
+		log.Fatalf("❌ Error parsing component templates: %v", err)
 	}
 
 	log.Println("✅ Templates loaded successfully")

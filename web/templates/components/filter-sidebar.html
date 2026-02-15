@@ -1,0 +1,113 @@
+{{define "filter-sidebar"}}
+<aside class="filter-sidebar" id="filterSidebar">
+    <div class="filter-sidebar-inner">
+
+        <!-- Header: "Filters" with sliders icon -->
+        <div class="filter-header">
+            <div class="filter-header-left">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V19a1 1 0 01-.553.894l-4 2A1 1 0 017 21v-7.586L3.293 6.707A1 1 0 013 6V4z"/>
+                </svg>
+                <span>Filters</span>
+            </div>
+            <button type="button" class="filter-clear-btn" id="clearAllFilters">Clear all</button>
+        </div>
+
+        <!-- Active Filter Tags -->
+        <div class="filter-active-tags" id="activeFilterTags" hidden></div>
+
+        <!-- Genre -->
+        <div class="filter-section">
+            <div class="filter-section-toggle" aria-expanded="true" data-target="genreList">
+                <span class="filter-section-title">Genre</span>
+                <svg class="filter-section-chevron" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+                </svg>
+            </div>
+            <div class="filter-section-body" id="genreList">
+                <ul class="filter-checkbox-list" id="genreCheckboxList">
+                    <li class="filter-checkbox-item">
+                        <label class="filter-checkbox-label">
+                            <input type="checkbox" class="filter-checkbox" data-filter="genre" value="Rock"/>
+                            <span class="filter-checkbox-custom"></span>
+                            <span class="filter-checkbox-text">Rock</span>
+                        </label>
+                    </li>
+                    <li class="filter-checkbox-item">
+                        <label class="filter-checkbox-label">
+                            <input type="checkbox" class="filter-checkbox" data-filter="genre" value="Pop"/>
+                            <span class="filter-checkbox-custom"></span>
+                            <span class="filter-checkbox-text">Pop</span>
+                        </label>
+                    </li>
+                    <li class="filter-checkbox-item">
+                        <label class="filter-checkbox-label">
+                            <input type="checkbox" class="filter-checkbox" data-filter="genre" value="Jazz"/>
+                            <span class="filter-checkbox-custom"></span>
+                            <span class="filter-checkbox-text">Jazz</span>
+                        </label>
+                    </li>
+                    <li class="filter-checkbox-item">
+                        <label class="filter-checkbox-label">
+                            <input type="checkbox" class="filter-checkbox" data-filter="genre" value="Hip-Hop"/>
+                            <span class="filter-checkbox-custom"></span>
+                            <span class="filter-checkbox-text">Hip-Hop</span>
+                        </label>
+                    </li>
+                    <li class="filter-checkbox-item">
+                        <label class="filter-checkbox-label">
+                            <input type="checkbox" class="filter-checkbox" data-filter="genre" value="Electronic"/>
+                            <span class="filter-checkbox-custom"></span>
+                            <span class="filter-checkbox-text">Electronic</span>
+                        </label>
+                    </li>
+                    <li class="filter-checkbox-item">
+                        <label class="filter-checkbox-label">
+                            <input type="checkbox" class="filter-checkbox" data-filter="genre" value="Classical"/>
+                            <span class="filter-checkbox-custom"></span>
+                            <span class="filter-checkbox-text">Classical</span>
+                        </label>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Popularity -->
+        <div class="filter-section">
+            <div class="filter-slider-wrap">
+                <div class="filter-slider-labels">
+                    <span>Popularity</span>
+                    <span class="filter-slider-value" id="popularityValue">0+</span>
+                </div>
+                <div class="filter-slider-track">
+                    <div class="filter-slider-fill" id="popularityFill"></div>
+                    <input
+                            type="range"
+                            class="filter-slider"
+                            id="popularitySlider"
+                            min="0"
+                            max="100"
+                            step="5"
+                            value="0"
+                            data-filter="popularity"
+                            aria-label="Minimum popularity"
+                    />
+                </div>
+                <div class="filter-slider-ticks">
+                    <span>0</span>
+                    <span>50</span>
+                    <span>100</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Mobile close -->
+    <button type="button" class="filter-mobile-close" id="filterMobileClose" aria-label="Close filters">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+    </button>
+</aside>
+{{end}}
