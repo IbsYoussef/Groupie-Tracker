@@ -22,7 +22,7 @@ func SpotifyLoginHandler(w http.ResponseWriter, r *http.Request) {
 		"https://accounts.spotify.com/authorize?client_id=%s&response_type=code&redirect_uri=%s&scope=%s",
 		cfg.SpotifyClientID,
 		url.QueryEscape(cfg.SpotifyRedirectURI),
-		url.QueryEscape("user-read-email user-read-private"),
+		url.QueryEscape("user-read-email user-read-private user-top-read"),
 	)
 
 	log.Println("🎵 Redirecting to Spotify login...")
@@ -33,7 +33,9 @@ func SpotifyLoginHandler(w http.ResponseWriter, r *http.Request) {
 func SpotifyCallbackHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("🔔 Callback hit! Full URL: %s", r.URL.String())
 	log.Printf("🔔 Code: %s", r.URL.Query().Get("code"))
-	log.Printf("🔔 Error: %s", r.URL.Query().Get("error"))
+	if errParam := r.URL.Query().Get("error"); errParam != "" {
+		log.Printf("❌ Spotify auth error: %s", errParam)
+	}
 
 	cfg := config.Load()
 
@@ -133,6 +135,12 @@ func SpotifyCallbackHandler(w http.ResponseWriter, r *http.Request) {
 		log.Printf("✅ Spotify user created: %s", user.Username)
 	} else {
 		log.Printf("✅ Existing Spotify user: %s", user.Username)
+	}
+
+	// ── Store access token against user for later API calls ──
+	if err := models.SaveSpotifyToken(database.DB, user.ID, tokenResponse.AccessToken); err != nil {
+		log.Printf("⚠️  Could not save Spotify token: %v", err)
+		// Non-fatal - continue to login
 	}
 
 	// Create session
