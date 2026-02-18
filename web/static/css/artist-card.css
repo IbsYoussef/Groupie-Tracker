@@ -1,48 +1,53 @@
-/* article.group bg-card rounded-2xl border border-border overflow-hidden
-   hover:shadow-lg hover:-translate-y-1 transition-all duration-300 */
+/* Artist Card Container */
 .artist-card {
     background: var(--card);
-    border-radius: 1rem; /* rounded-2xl */
+    border-radius: 1rem;
     border: 1px solid var(--border);
     overflow: hidden;
     transition: box-shadow 300ms ease, transform 300ms ease;
     display: flex;
     flex-direction: column;
+    max-width: 280px; /* Limit card width to make images smaller */
 }
 
 .artist-card:hover {
     box-shadow: 0 10px 40px rgba(0,0,0,0.1);
-    transform: translateY(-4px); /* -translate-y-1 */
+    transform: translateY(-4px);
 }
 
-/* Image link: block */
-.artist-card-img-link {
-    display: block;
-    text-decoration: none;
-}
-
-/* aspect-square relative overflow-hidden */
-.artist-card-img-wrap {
+/* Image Container - Square aspect ratio */
+.artist-card-img-container {
     position: relative;
-    aspect-ratio: 1 / 1;
+    width: 100%;
+    aspect-ratio: 1 / 1; /* Force square */
     overflow: hidden;
+    background: var(--secondary);
 }
 
-/* w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 */
 .artist-card-img {
     width: 100%;
     height: 100%;
-    object-fit: cover;
-    transition: transform 300ms ease;
+    object-fit: cover; /* Crop to fill square */
+    object-position: center;
     display: block;
+    transition: transform 300ms ease;
 }
 
 .artist-card:hover .artist-card-img {
     transform: scale(1.05);
 }
 
-/* absolute inset-0 bg-gradient-to-t from-foreground/40 to-transparent
-   opacity-0 group-hover:opacity-100 transition-opacity */
+.artist-card-img-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--secondary);
+    color: var(--muted-foreground);
+    font-size: 14px;
+}
+
 .artist-card-img-overlay {
     position: absolute;
     inset: 0;
@@ -56,21 +61,7 @@
     opacity: 1;
 }
 
-/* p-4 */
-.artist-card-body {
-    padding: 1rem;
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-}
-
-/* Name link */
-.artist-card-name-link {
-    text-decoration: none;
-    display: block;
-}
-
-/* text-lg font-semibold text-foreground hover:text-primary transition-colors truncate */
+/* Artist Name - More space from image */
 .artist-card-name {
     font-size: 1.125rem;
     font-weight: 600;
@@ -78,23 +69,19 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    transition: color 150ms ease;
     line-height: 1.4;
+    margin: 1rem 1rem 0.75rem 1rem; /* Increased bottom margin from 0.5rem to 0.75rem */
 }
 
-.artist-card-name-link:hover .artist-card-name {
-    color: var(--primary);
-}
-
-/* flex flex-wrap gap-1.5 mt-2 */
+/* Genres */
 .artist-card-genres {
     display: flex;
     flex-wrap: wrap;
     gap: 0.375rem;
-    margin-top: 0.5rem;
+    margin: 0 1rem 0.75rem 1rem; /* Increased bottom margin */
+    min-height: 24px; /* Reserve space even if no genres */
 }
 
-/* px-2 py-0.5 rounded-full bg-secondary text-xs font-medium text-muted-foreground */
 .artist-card-genre {
     padding: 0.125rem 0.5rem;
     border-radius: 9999px;
@@ -104,118 +91,78 @@
     color: var(--muted-foreground);
 }
 
-/* mt-4 */
+.artist-card-genre.empty {
+    opacity: 0.5;
+}
+
+/* Top Tracks Section */
 .artist-card-tracks {
-    margin-top: 1rem;
+    margin: 0 1rem;
     flex: 1;
 }
 
-/* text-xs font-medium text-muted-foreground mb-2 */
-.artist-card-tracks-label {
+.track-header {
     font-size: 0.75rem;
     font-weight: 500;
     color: var(--muted-foreground);
     margin-bottom: 0.5rem;
 }
 
-/* space-y-1.5 */
-.artist-card-track-list {
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: 0.375rem;
-}
-
-/* flex items-center gap-2 group/track */
-.artist-card-track {
+.track-item {
     display: flex;
     align-items: center;
+    justify-content: space-between;
     gap: 0.5rem;
+    padding: 0.25rem 0;
 }
 
-/* shrink-0 w-7 h-7 rounded-full bg-secondary hover:bg-accent hover:text-white
-   flex items-center justify-center transition-colors */
-.artist-card-play-btn {
-    flex-shrink: 0;
-    width: 1.75rem;
-    height: 1.75rem;
-    border-radius: 9999px;
-    background: var(--secondary);
-    border: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: background 150ms ease, color 150ms ease;
-    color: var(--foreground);
-    padding: 0;
+.track-item.empty {
+    color: var(--muted-foreground);
+    font-size: 0.875rem;
 }
 
-.artist-card-play-btn:hover {
-    background: var(--accent);
-    color: white;
-}
-
-.artist-card-play-btn.playing {
-    background: var(--primary);
-    color: white;
-}
-
-/* Play/pause icons: w-3 h-3 */
-.artist-card-play-btn svg {
-    width: 0.75rem;
-    height: 0.75rem;
-}
-
-/* ml-0.5 offset for play icon visual centering */
-.icon-play { margin-left: 1px; }
-.icon-pause { margin-left: 0; }
-
-/* flex-1 text-sm text-foreground truncate group-hover/track:text-primary */
-.artist-card-track-name {
+.track-name {
     flex: 1;
     font-size: 0.875rem;
     color: var(--foreground);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    transition: color 150ms ease;
 }
 
-.artist-card-track:hover .artist-card-track-name {
-    color: var(--primary);
-}
-
-/* text-xs text-muted-foreground shrink-0 */
-.artist-card-track-duration {
+.track-duration {
     font-size: 0.75rem;
     color: var(--muted-foreground);
     flex-shrink: 0;
     font-variant-numeric: tabular-nums;
 }
 
-/* View Profile button:
-   w-full mt-4 bg-gradient-to-r from-primary to-accent text-white hover:opacity-90
-   rounded-md h-9 px-4 inline-flex items-center justify-center font-medium text-sm */
+/* View Profile Button */
 .artist-card-btn {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 100%;
-    margin-top: 1rem;
+    width: calc(100% - 2rem);
+    margin: 1rem;
     height: 2.25rem;
     padding: 0 1rem;
     background: linear-gradient(to right, var(--primary), var(--accent));
     color: white;
     border-radius: 0.375rem;
+    border: none;
     font-size: 0.875rem;
     font-weight: 500;
     text-decoration: none;
     transition: opacity 150ms ease;
-    font-family: var(--font-sans);
+    cursor: pointer;
+    font-family: inherit;
 }
 
-.artist-card-btn:hover {
+.artist-card-btn:hover:not(:disabled) {
     opacity: 0.9;
-    color: white;
+}
+
+.artist-card-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }

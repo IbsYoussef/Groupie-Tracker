@@ -10,7 +10,7 @@ import (
 	"github.com/IbsYoussef/Groupie-Tracker/internal/services/spotify"
 )
 
-// DiscoverPageData holds template data for the discover page
+// DiscoverPageData holds template data for the discover template
 type DiscoverPageData struct {
 	User    *models.User
 	Artists []models.Artist
@@ -60,7 +60,7 @@ func DiscoverHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	artists, err := spotify.GetTopArtists(spotifyToken)
+	artists, err := spotify.GetTopArtists(spotifyToken, cfg.LastFMAPIKey)
 	if err != nil {
 		log.Printf("❌ Error fetching top artists: %v", err)
 		// Render page with error state rather than crashing
@@ -71,7 +71,7 @@ func DiscoverHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Printf("✅ Discover page loaded for user: %s", user.Username)
+	log.Printf("✅ Discover page loaded for user: %s", user.Username, len(artists))
 
 	// Use the existing RenderTemplate helper (components now loaded via init())
 	RenderTemplate(w, "discover.html", DiscoverPageData{

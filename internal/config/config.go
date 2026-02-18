@@ -23,6 +23,7 @@ type Config struct {
 	SpotifyClientID     string
 	SpotifyClientSecret string
 	SpotifyRedirectURI  string
+	LastFMAPIKey        string
 	OpenAIAPIKey        string
 }
 
@@ -48,6 +49,7 @@ func Load() *Config {
 		SpotifyClientID:     getEnv("SPOTIFY_CLIENT_ID", ""),
 		SpotifyClientSecret: getEnv("SPOTIFY_CLIENT_SECRET", ""),
 		SpotifyRedirectURI:  getEnv("SPOTIFY_REDIRECT_URI", ""),
+		LastFMAPIKey:        getEnv("LASTFM_API_KEY", ""),
 		OpenAIAPIKey:        getEnv("OPENAI_API_KEY", ""),
 	}
 }

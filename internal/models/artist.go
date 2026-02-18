@@ -7,13 +7,24 @@ import (
 
 // Artist represents a Spotify artist with enriched data for display
 type Artist struct {
-	ID         string
-	Name       string
-	Image      string
-	Genres     []string
-	Popularity int
-	Followers  int
-	TopTracks  []Track
+	ID            string
+	Name          string
+	Image         string
+	Genres        []string
+	Popularity    int
+	Followers     int
+	ChartRank     int     // Last.fm chart position
+	Playcount     int     // Last.fm playcount
+	PopularAlbums []Album // Top albums from Spotify
+	TopTracks     []Track
+}
+
+// Album represents a Spotify album
+type Album struct {
+	ID          string
+	Name        string
+	Image       string
+	ReleaseDate string
 }
 
 // Track represents a Spotify track with display-ready duration
