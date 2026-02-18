@@ -59,3 +59,8 @@ func getEnv(key, defaultValue string) string {
 	}
 	return defaultValue
 }
+
+// IsDev returns true if running in development mode
+func IsDev() bool {
+	return getEnv("ENV", "development") == "development"
+}

@@ -5,13 +5,21 @@ import (
 	"log"
 	"net/http"
 	"path/filepath"
+
+	"github.com/IbsYoussef/Groupie-Tracker/internal/config"
 )
 
-// Global template variable - loaded once at startup
+// Global template variable - loaded once at startup in production
 var tpl *template.Template
 
 // init runs automatically when the package is imported
 func init() {
+	loadTemplates()
+	log.Println("✅ Templates loaded successfully")
+}
+
+// loadTemplates parse all template files
+func loadTemplates() {
 	var err error
 
 	// Parse all templates from the templates directory
@@ -26,12 +34,15 @@ func init() {
 	if err != nil {
 		log.Fatalf("❌ Error parsing component templates: %v", err)
 	}
-
-	log.Println("✅ Templates loaded successfully")
 }
 
 // RenderTemplate is a helper function to render templates with error handling
 func RenderTemplate(w http.ResponseWriter, tmpl string, data interface{}) {
+	// In dev mode, reload templates on every request for hot reloading
+	if config.IsDev() {
+		loadTemplates()
+	}
+
 	// Set content type
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 

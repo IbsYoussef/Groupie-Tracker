@@ -25,10 +25,15 @@ services:
 
     # Data persistence and initialization
     volumes:
-      # Explicit bind mount with type specified
-      - type: bind
-        source: ./postgres-data
-        target: /var/lib/postgresql/data
+      # Persistent database storage - survives container restarts
+      - ./postgres-data:/var/lib/postgresql/data
+
+      # Migration files - auto-run on fresh database initialization
+      # Read-only mount to prevent accidental container-side modifications
+      - ./scripts/migrations:/docker-entrypoint-initdb.d/migrations:ro
+
+      # Migration runner script - executes all .sql files in numerical order
+      - ./scripts/run-migrations.sh:/docker-entrypoint-initdb.d/run-migrations.sh:ro
 
       # Init scripts
       - type: bind
