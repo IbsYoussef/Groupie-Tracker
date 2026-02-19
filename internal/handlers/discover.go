@@ -10,7 +10,7 @@ import (
 	"github.com/IbsYoussef/Groupie-Tracker/internal/services/spotify"
 )
 
-// DiscoverPageData holds template data for the discover template
+// DiscoverPageData holds all data passed to the discover template
 type DiscoverPageData struct {
 	User    *models.User
 	Artists []models.Artist
@@ -19,7 +19,7 @@ type DiscoverPageData struct {
 
 // DiscoverHandler serves the discover page (requires authentication)
 func DiscoverHandler(w http.ResponseWriter, r *http.Request) {
-	// ── Auth check
+	// ── Auth check ──────────────────────────────────────────
 	cookie, err := r.Cookie("session_token")
 	if err != nil {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
@@ -40,7 +40,6 @@ func DiscoverHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Get user to pass to template
 	user, err := models.GetUserByID(database.DB, session.UserID)
 	if err != nil {
 		log.Printf("❌ Error fetching user: %v", err)
@@ -48,22 +47,13 @@ func DiscoverHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// ── Fetch top artists from Spotify ──────────────────────
-	// Use the user's OAuth token (already stored in DB from login)
-	spotifyToken, err := models.GetSpotifyTokenByUserID(database.DB, session.UserID)
-	if err != nil || spotifyToken == "" {
-		log.Printf("❌ No Spotify token for user: %v", err)
-		RenderTemplate(w, "discover.html", DiscoverPageData{
-			User:  user,
-			Error: "Unable to load artists. Please log in with Spotify again.",
-		})
-		return
-	}
+	// ── Fetch top artists from Last.fm + Spotify images ──────────────────────
+	// Get Spotify token for image enrichment (optional - works without it too)
+	spotifyToken, _ := models.GetSpotifyTokenByUserID(database.DB, session.UserID)
 
-	artists, err := spotify.GetTopArtists(spotifyToken, cfg.LastFMAPIKey)
+	artists, err := spotify.GetTopArtistsWithSpotify(spotifyToken, cfg.LastFMAPIKey)
 	if err != nil {
 		log.Printf("❌ Error fetching top artists: %v", err)
-		// Render page with error state rather than crashing
 		RenderTemplate(w, "discover.html", DiscoverPageData{
 			User:  user,
 			Error: "Unable to load artists right now. Please try again later.",
@@ -71,9 +61,14 @@ func DiscoverHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Printf("✅ Discover page loaded for user: %s", user.Username, len(artists))
+	log.Printf("✅ Discover page loaded for user: %s (%d artists)", user.Username, len(artists))
 
-	// Use the existing RenderTemplate helper (components now loaded via init())
+	// Debug: Check first 3 artists
+	for i := 0; i < min(3, len(artists)); i++ {
+		log.Printf("🔍 Artist #%d: Name=%s, Image=%s, Rank=%d",
+			i+1, artists[i].Name, artists[i].Image, artists[i].ChartRank)
+	}
+
 	RenderTemplate(w, "discover.html", DiscoverPageData{
 		User:    user,
 		Artists: artists,

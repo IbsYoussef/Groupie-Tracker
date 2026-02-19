@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"time"
 )
@@ -11,6 +12,7 @@ import (
 // =====================
 // Last.fm API Response Types
 // =====================
+
 type lastfmTopArtistsResponse struct {
 	Artists struct {
 		Artist []struct {
@@ -23,7 +25,7 @@ type lastfmTopArtistsResponse struct {
 				Rank string `json:"rank"`
 			} `json:"@attr"`
 			Image []struct {
-				Text string `json:"text"`
+				Text string `json:"#text"`
 				Size string `json:"size"`
 			} `json:"image"`
 		} `json:"artist"`
@@ -64,9 +66,9 @@ func GetTopArtists(apiKey string) ([]ChartArtist, error) {
 	}
 
 	var artists []ChartArtist
-	for _, a := range result.Artists.Artist {
+	for i, a := range result.Artists.Artist {
 		// Parse rank (already a string number)
-		rank := 0
+		rank := i + 1 // Use index + 1 as fallback
 		fmt.Sscanf(a.Attr.Rank, "%d", &rank)
 
 		// Parse playcount and listeners
@@ -84,13 +86,35 @@ func GetTopArtists(apiKey string) ([]ChartArtist, error) {
 			}
 		}
 
-		artists = append(artists, ChartArtist{
+		// Fallback to any available image if extralarge/mega not found
+		if imageURL == "" && len(a.Image) > 0 {
+			// Try large, medium, small in order
+			for _, img := range a.Image {
+				if img.Size == "large" || img.Size == "medium" || img.Size == "small" {
+					imageURL = img.Text
+					break
+				}
+			}
+		}
+
+		artist := ChartArtist{
 			Name:      a.Name,
 			Rank:      rank,
 			Playcount: playcount,
 			Listeners: listeners,
 			ImageURL:  imageURL,
-		})
+		}
+
+		artists = append(artists, artist)
+
+		// Debug: Log first 5 artists with their image status
+		if len(artists) <= 5 {
+			if imageURL != "" {
+				log.Printf("🖼️  Rank #%d: %s - Image: %.50s...", artist.Rank, artist.Name, imageURL)
+			} else {
+				log.Printf("⚠️  Rank #%d: %s - NO IMAGE", artist.Rank, artist.Name)
+			}
+		}
 	}
 
 	return artists, nil

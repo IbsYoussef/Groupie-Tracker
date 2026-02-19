@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"net/url"
 	"strings"
@@ -78,29 +79,65 @@ func spotifyGet(token, endpoint string, target interface{}) error {
 }
 
 // =====================
-// Main Function: GetTopArtists
-// 1. Fetches Last.fm top 50 global chart
-// 2. Enriches each artist with Spotify metadata (search by name)
-// 3. Gets top 3 albums for each artist
+// SIMPLE VERSION - Last.fm Only
 // =====================
 
-func GetTopArtists(spotifyToken, lastfmAPIKey string) ([]models.Artist, error) {
-	// Step 1: Get Last.fm chart (sequential - fast)
+// GetTopArtistsSimple fetches top 50 artists from Last.fm
+// Uses Spotify for images only (if token provided)
+func GetTopArtistsSimple(lastfmAPIKey string) ([]models.Artist, error) {
+	// Get Last.fm chart
 	chartArtists, err := lastfm.GetTopArtists(lastfmAPIKey)
 	if err != nil {
 		return nil, fmt.Errorf("fetching Last.fm charts: %w", err)
 	}
 
-	// Step 2: Enrich with Spotify data concurrently
+	log.Printf("📊 Last.fm returned %d artists", len(chartArtists))
+
+	// Convert Last.fm artists to our model
+	// Note: Using Last.fm images which may be blocked by some networks
+	// For production, consider implementing Spotify image enrichment
+	artists := make([]models.Artist, 0, len(chartArtists))
+	for _, ca := range chartArtists {
+		artists = append(artists, models.Artist{
+			Name:          ca.Name,
+			Image:         ca.ImageURL, // Last.fm CDN may be blocked
+			ChartRank:     ca.Rank,
+			Playcount:     ca.Playcount,
+			Followers:     ca.Listeners,
+			Genres:        []string{},
+			PopularAlbums: []models.Album{},
+		})
+	}
+
+	log.Printf("✅ Loaded %d artists from Last.fm", len(artists))
+	log.Printf("⚠️  Using Last.fm images - if images don't display, the CDN may be blocked")
+
+	return artists, nil
+}
+
+// =====================
+// ENRICHED VERSION - Last.fm + Spotify (TODO)
+// =====================
+
+// GetTopArtistsWithSpotify fetches from Last.fm and enriches with Spotify images
+// Falls back to Last.fm data if Spotify enrichment fails
+func GetTopArtistsWithSpotify(spotifyToken, lastfmAPIKey string) ([]models.Artist, error) {
+	// Get Last.fm chart
+	chartArtists, err := lastfm.GetTopArtists(lastfmAPIKey)
+	if err != nil {
+		return nil, fmt.Errorf("fetching Last.fm charts: %w", err)
+	}
+
+	log.Printf("📊 Last.fm returned %d artists", len(chartArtists))
+
 	var (
 		wg      sync.WaitGroup
 		mu      sync.Mutex
 		artists []models.Artist
-		seenIDs = make(map[string]bool)
 	)
 
 	// Use buffered channel to limit concurrent requests
-	semaphore := make(chan struct{}, 10) // Max 10 concurrent API calls
+	semaphore := make(chan struct{}, 10)
 
 	for _, chartArtist := range chartArtists {
 		wg.Add(1)
@@ -112,45 +149,101 @@ func GetTopArtists(spotifyToken, lastfmAPIKey string) ([]models.Artist, error) {
 			semaphore <- struct{}{}
 			defer func() { <-semaphore }()
 
-			// Search Spotify for this artist
-			artist, err := searchArtist(spotifyToken, ca.Name)
-			if err != nil || artist == nil {
-				return // Skip if not found
+			// Start with Last.fm data (guaranteed to exist)
+			artist := models.Artist{
+				Name:          ca.Name,
+				Image:         ca.ImageURL, // Fallback to Last.fm image
+				ChartRank:     ca.Rank,
+				Playcount:     ca.Playcount,
+				Followers:     ca.Listeners,
+				Genres:        []string{},
+				PopularAlbums: []models.Album{},
 			}
 
-			// Check for duplicates (thread-safe)
+			// Try to get Spotify image (simple search, no complex validation)
+			if spotifyToken != "" {
+				if spotifyArtist, err := searchArtistForImage(spotifyToken, ca.Name); err == nil && spotifyArtist != nil {
+					// Use Spotify image (higher quality and not blocked)
+					if spotifyArtist.Image != "" {
+						artist.Image = spotifyArtist.Image
+					}
+					// Bonus: get genres and ID if available
+					artist.ID = spotifyArtist.ID
+					artist.Genres = spotifyArtist.Genres
+				}
+			}
+
 			mu.Lock()
-			if seenIDs[artist.ID] {
-				mu.Unlock()
-				return
-			}
-			seenIDs[artist.ID] = true
-			mu.Unlock()
-
-			// Add Last.fm chart data
-			artist.ChartRank = ca.Rank
-			artist.Playcount = ca.Playcount
-
-			// Get albums from Spotify
-			albums, err := getArtistAlbums(spotifyToken, artist.ID)
-			if err == nil {
-				artist.PopularAlbums = albums
-			}
-
-			// Append to results (thread-safe)
-			mu.Lock()
-			artists = append(artists, *artist)
+			artists = append(artists, artist)
 			mu.Unlock()
 		}(chartArtist)
 	}
 
-	// Wait for all goroutines to complete
 	wg.Wait()
 
 	// Sort by chart rank to maintain order
 	sortArtistsByRank(artists)
 
+	log.Printf("✅ Loaded %d artists (with Spotify images)", len(artists))
+
 	return artists, nil
+}
+
+// searchArtistForImage does a simple Spotify search just to get the image
+// Uses basic name validation to avoid completely wrong matches
+func searchArtistForImage(token, name string) (*models.Artist, error) {
+	endpoint := fmt.Sprintf(
+		"search?q=%s&type=artist&limit=3",
+		url.QueryEscape(name),
+	)
+
+	var result spotifySearchResponse
+	if err := spotifyGet(token, endpoint, &result); err != nil {
+		return nil, err
+	}
+
+	if len(result.Artists.Items) == 0 {
+		return nil, nil
+	}
+
+	// Simple validation: check if artist name is somewhat similar
+	searchLower := strings.ToLower(strings.TrimSpace(name))
+
+	// Try to find a match in top 3 results
+	for _, candidate := range result.Artists.Items {
+		candidateLower := strings.ToLower(strings.TrimSpace(candidate.Name))
+
+		// Check if names match (case-insensitive, ignoring "The" prefix)
+		searchClean := strings.TrimPrefix(searchLower, "the ")
+		candidateClean := strings.TrimPrefix(candidateLower, "the ")
+
+		// Match if: exact match, one contains the other, or very similar
+		if searchClean == candidateClean ||
+			strings.Contains(candidateClean, searchClean) ||
+			strings.Contains(searchClean, candidateClean) {
+
+			// Get highest quality image
+			image := ""
+			if len(candidate.Images) > 0 {
+				image = candidate.Images[0].URL
+			}
+
+			// Capitalize genres
+			genres := make([]string, len(candidate.Genres))
+			for i, g := range candidate.Genres {
+				genres[i] = capitalizeGenre(g)
+			}
+
+			return &models.Artist{
+				ID:     candidate.ID,
+				Image:  image,
+				Genres: genres,
+			}, nil
+		}
+	}
+
+	// No good match found - return nil (will use Last.fm fallback)
+	return nil, nil
 }
 
 // sortArtistsByRank sorts artists by their Last.fm chart position
@@ -165,48 +258,12 @@ func sortArtistsByRank(artists []models.Artist) {
 	}
 }
 
-// searchArtist searches Spotify for an artist by name and returns enriched data
-func searchArtist(token, name string) (*models.Artist, error) {
-	endpoint := fmt.Sprintf("search?q=%s&type=artist&limit=1",
-		url.QueryEscape(name),
-	)
-
-	var result spotifySearchResponse
-	if err := spotifyGet(token, endpoint, &result); err != nil {
-		return nil, err
-	}
-
-	if len(result.Artists.Items) == 0 {
-		return nil, nil
-	}
-
-	a := result.Artists.Items[0]
-
-	// Get the highest quality image
-	image := ""
-	if len(a.Images) > 0 {
-		image = a.Images[0].URL
-	}
-
-	// Capitalise genres
-	genres := make([]string, len(a.Genres))
-	for i, g := range a.Genres {
-		genres[i] = capitalizeGenre(g)
-	}
-
-	return &models.Artist{
-		ID:         a.ID,
-		Name:       a.Name,
-		Image:      image,
-		Genres:     genres,
-		Popularity: a.Popularity,
-		Followers:  a.Followers.Total,
-	}, nil
-}
+// =====================
+// Helper Functions (for future Spotify enrichment)
+// =====================
 
 // getArtistAlbums fetches top 3 albums for an artist
 func getArtistAlbums(token, artistID string) ([]models.Album, error) {
-	// Get albums, sorted by release date (newest first)
 	endpoint := fmt.Sprintf(
 		"artists/%s/albums?include_groups=album&market=US&limit=3",
 		artistID,
@@ -242,7 +299,6 @@ func getArtistAlbums(token, artistID string) ([]models.Album, error) {
 }
 
 // capitalizeGenre formats Spotify's lowercase genre strings
-// e.g. "hip hop" → "Hip Hop", "pop" → "Pop"
 func capitalizeGenre(g string) string {
 	words := strings.Fields(g)
 	for i, w := range words {
