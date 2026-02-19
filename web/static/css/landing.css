@@ -1,4 +1,6 @@
-/* ===== CSS VARIABLES (from v0 globals.css) ===== */
+/* ========================================
+   CSS VARIABLES
+   ======================================== */
 :root {
     --background: #FFFFFF;
     --background-secondary: #F5F5F7;
@@ -11,7 +13,9 @@
     --border: #E5E5EA;
 }
 
-/* ===== RESET & BASE ===== */
+/* ========================================
+   RESET & BASE STYLES
+   ======================================== */
 * {
     margin: 0;
     padding: 0;
@@ -30,7 +34,9 @@ body {
     flex-direction: column;
 }
 
-/* ===== NAVIGATION ===== */
+/* ========================================
+   NAVIGATION BAR
+   ======================================== */
 .nav {
     position: sticky;
     top: 0;
@@ -50,6 +56,7 @@ body {
     height: 64px;
 }
 
+/* Logo */
 .nav-logo {
     display: flex;
     align-items: center;
@@ -80,13 +87,14 @@ body {
     color: var(--foreground);
 }
 
+/* Navigation Buttons Container */
 .nav-buttons {
     display: flex;
     align-items: center;
     gap: 0.75rem;
 }
 
-/* Mobile Menu */
+/* Mobile Menu Toggle */
 .mobile-menu-btn {
     display: none;
     padding: 0.5rem;
@@ -117,6 +125,7 @@ body {
     display: block;
 }
 
+/* Mobile Menu Dropdown */
 .mobile-menu {
     display: none;
     padding: 1rem;
@@ -133,7 +142,11 @@ body {
     gap: 0.5rem;
 }
 
-/* ===== BUTTONS ===== */
+/* ========================================
+   BUTTON STYLES
+   ======================================== */
+
+/* Base Button */
 .btn {
     display: inline-flex;
     align-items: center;
@@ -149,15 +162,18 @@ body {
     white-space: nowrap;
 }
 
+/* Ghost Button - Transparent background (used for Login) */
 .btn-ghost {
     background: transparent;
     color: var(--foreground);
 }
 
 .btn-ghost:hover {
-    background: var(--secondary);
+    background: var(--accent);
+    color: white;
 }
 
+/* Gradient Button - Primary gradient (used for Sign Up) */
 .btn-gradient {
     background: linear-gradient(135deg, var(--primary), var(--accent));
     color: white;
@@ -167,12 +183,13 @@ body {
     opacity: 0.9;
 }
 
+/* Mobile Full Width Button */
 .btn-mobile {
     width: 100%;
     justify-content: center;
 }
 
-/* Hero Buttons */
+/* Hero Section Buttons */
 .btn-hero-white {
     background: white;
     color: var(--primary);
@@ -198,7 +215,7 @@ body {
     background: rgba(255, 255, 255, 0.1);
 }
 
-/* CTA Button */
+/* Call-to-Action Button */
 .btn-cta {
     background: linear-gradient(135deg, var(--primary), var(--accent));
     color: white;
@@ -211,12 +228,15 @@ body {
     opacity: 0.9;
 }
 
-/* ===== HERO SECTION  ===== */
+/* ========================================
+   HERO SECTION
+   ======================================== */
 .hero {
     position: relative;
     overflow: hidden;
 }
 
+/* Hero Background Gradients */
 .hero-bg-gradient {
     position: absolute;
     inset: 0;
@@ -235,6 +255,7 @@ body {
     background: radial-gradient(circle at 70% 80%, rgba(255, 149, 0, 0.2), transparent 50%);
 }
 
+/* Hero Content */
 .hero-container {
     position: relative;
     max-width: 1280px;
@@ -269,7 +290,7 @@ body {
     gap: 1rem;
 }
 
-/* Decorative Notes */
+/* Decorative Music Notes */
 .decorative-note {
     position: absolute;
     color: rgba(255, 255, 255, 0.2);
@@ -306,7 +327,9 @@ body {
     }
 }
 
-/* ===== FEATURES SECTION ===== */
+/* ========================================
+   FEATURES SECTION
+   ======================================== */
 .features {
     padding: 5rem 0;
     background: var(--secondary);
@@ -318,6 +341,7 @@ body {
     padding: 0 1rem;
 }
 
+/* Features Header */
 .features-header {
     text-align: center;
     margin-bottom: 4rem;
@@ -338,11 +362,13 @@ body {
     margin-right: auto;
 }
 
+/* Features Grid */
 .features-grid {
     display: grid;
     gap: 2rem;
 }
 
+/* Individual Feature Card */
 .feature-card {
     background: var(--card);
     padding: 2rem;
@@ -386,7 +412,9 @@ body {
     line-height: 1.6;
 }
 
-/* ===== CTA SECTION ===== */
+/* ========================================
+   CALL-TO-ACTION SECTION
+   ======================================== */
 .cta {
     padding: 5rem 0;
     background: var(--background);
@@ -415,7 +443,9 @@ body {
     margin-right: auto;
 }
 
-/* ===== FOOTER ===== */
+/* ========================================
+   FOOTER
+   ======================================== */
 .footer {
     background: var(--secondary);
     padding: 2rem 1rem;
@@ -431,6 +461,7 @@ body {
     gap: 1rem;
 }
 
+/* Footer Logo */
 .footer-logo {
     display: flex;
     align-items: center;
@@ -459,12 +490,14 @@ body {
     color: var(--foreground);
 }
 
+/* Footer Text */
 .footer-text {
     font-size: 0.875rem;
     color: var(--muted-foreground);
     text-align: center;
 }
 
+/* Footer Links */
 .footer-links {
     display: flex;
     align-items: center;
@@ -480,22 +513,30 @@ body {
     color: var(--foreground);
 }
 
-/* ===== RESPONSIVE ===== */
+/* ========================================
+   RESPONSIVE BREAKPOINTS
+   ======================================== */
+
+/* Small screens and up (640px+) */
 @media (min-width: 640px) {
     .hero-buttons {
         flex-direction: row;
     }
 }
 
+/* Medium screens and up (768px+) */
 @media (min-width: 768px) {
+    /* Show desktop nav buttons */
     .nav-buttons {
         display: flex;
     }
 
+    /* Hide mobile menu toggle */
     .mobile-menu-btn {
         display: none;
     }
 
+    /* Hero adjustments */
     .hero-container {
         padding: 8rem 1.5rem;
     }
@@ -508,6 +549,7 @@ body {
         font-size: 1.25rem;
     }
 
+    /* Features adjustments */
     .features {
         padding: 7rem 0;
     }
@@ -520,6 +562,7 @@ body {
         grid-template-columns: repeat(3, 1fr);
     }
 
+    /* CTA adjustments */
     .cta {
         padding: 7rem 0;
     }
@@ -528,12 +571,14 @@ body {
         font-size: 2.25rem;
     }
 
+    /* Footer layout */
     .footer-container {
         flex-direction: row;
         justify-content: space-between;
     }
 }
 
+/* Large screens and up (1024px+) */
 @media (min-width: 1024px) {
     .hero-container {
         padding: 10rem 2rem;
@@ -544,11 +589,14 @@ body {
     }
 }
 
+/* Mobile only (767px and below) */
 @media (max-width: 767px) {
+    /* Hide desktop nav buttons */
     .nav-buttons {
         display: none;
     }
 
+    /* Show mobile menu toggle */
     .mobile-menu-btn {
         display: block;
     }
