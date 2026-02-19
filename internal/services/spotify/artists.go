@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/IbsYoussef/Groupie-Tracker/internal/models"
@@ -84,44 +85,84 @@ func spotifyGet(token, endpoint string, target interface{}) error {
 // =====================
 
 func GetTopArtists(spotifyToken, lastfmAPIKey string) ([]models.Artist, error) {
-	// Step 1: Get Last.fm chart
+	// Step 1: Get Last.fm chart (sequential - fast)
 	chartArtists, err := lastfm.GetTopArtists(lastfmAPIKey)
 	if err != nil {
 		return nil, fmt.Errorf("fetching Last.fm charts: %w", err)
 	}
 
-	var artists []models.Artist
-	seenIDs := make(map[string]bool) // Track Spotify IDs
+	// Step 2: Enrich with Spotify data concurrently
+	var (
+		wg      sync.WaitGroup
+		mu      sync.Mutex
+		artists []models.Artist
+		seenIDs = make(map[string]bool)
+	)
 
-	// Step 2 & 3: Enrich with Spotify data
+	// Use buffered channel to limit concurrent requests
+	semaphore := make(chan struct{}, 10) // Max 10 concurrent API calls
+
 	for _, chartArtist := range chartArtists {
-		// Search Spotify for this artist
-		artist, err := searchArtist(spotifyToken, chartArtist.Name)
-		if err != nil || artist == nil {
-			// Skip if not found on Spotify - non-fatal
-			continue
-		}
+		wg.Add(1)
 
-		// Skip duplicates (same Spotify ID)
-		if seenIDs[artist.ID] {
-			continue
-		}
-		seenIDs[artist.ID] = true
+		go func(ca lastfm.ChartArtist) {
+			defer wg.Done()
 
-		// Add Last.fm chart data
-		artist.ChartRank = chartArtist.Rank
-		artist.Playcount = chartArtist.Playcount
+			// Acquire semaphore
+			semaphore <- struct{}{}
+			defer func() { <-semaphore }()
 
-		// Get albums from Spotify
-		albums, err := getArtistAlbums(spotifyToken, artist.ID)
-		if err == nil {
-			artist.PopularAlbums = albums
-		}
+			// Search Spotify for this artist
+			artist, err := searchArtist(spotifyToken, ca.Name)
+			if err != nil || artist == nil {
+				return // Skip if not found
+			}
 
-		artists = append(artists, *artist)
+			// Check for duplicates (thread-safe)
+			mu.Lock()
+			if seenIDs[artist.ID] {
+				mu.Unlock()
+				return
+			}
+			seenIDs[artist.ID] = true
+			mu.Unlock()
+
+			// Add Last.fm chart data
+			artist.ChartRank = ca.Rank
+			artist.Playcount = ca.Playcount
+
+			// Get albums from Spotify
+			albums, err := getArtistAlbums(spotifyToken, artist.ID)
+			if err == nil {
+				artist.PopularAlbums = albums
+			}
+
+			// Append to results (thread-safe)
+			mu.Lock()
+			artists = append(artists, *artist)
+			mu.Unlock()
+		}(chartArtist)
 	}
 
+	// Wait for all goroutines to complete
+	wg.Wait()
+
+	// Sort by chart rank to maintain order
+	sortArtistsByRank(artists)
+
 	return artists, nil
+}
+
+// sortArtistsByRank sorts artists by their Last.fm chart position
+func sortArtistsByRank(artists []models.Artist) {
+	// Simple bubble sort since we have <50 artists
+	for i := 0; i < len(artists); i++ {
+		for j := i + 1; j < len(artists); j++ {
+			if artists[i].ChartRank > artists[j].ChartRank {
+				artists[i], artists[j] = artists[j], artists[i]
+			}
+		}
+	}
 }
 
 // searchArtist searches Spotify for an artist by name and returns enriched data

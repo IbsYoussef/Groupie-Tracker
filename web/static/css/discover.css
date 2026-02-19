@@ -1,15 +1,5 @@
 /* ============================================
    GROUPIE TRACKER - DISCOVER PAGE
-   Pixel-perfect translation of v0 design
-   globals.css tokens:
-     --background: #FFFFFF
-     --secondary:  #F5F5F7
-     --foreground: #1D1D1F
-     --muted-foreground: #86868B
-     --border:     #E5E5EA
-     --primary:    #FC3C44
-     --accent:     #FF9500
-     --card:       #FFFFFF
    ============================================ */
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -781,17 +771,22 @@ body {
 
 .no-results-reset:hover { background: var(--secondary); }
 
-/* =====================
-   ARTIST GRID
-   grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6
-   ===================== */
+/* ========================================
+   ARTIST GRID LAYOUT
+   CSS Grid with fixed 280px cards for uniform sizing
+   auto-fill allows responsive wrapping
+   ======================================== */
 .artist-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 1.5rem; /* gap-6 */
+    grid-template-columns: repeat(auto-fill, minmax(280px, 280px));
+    justify-content: center;
+    gap: 1.5rem;
 }
 
-.artist-grid.list-view { grid-template-columns: 1fr; }
+/* List view - single column */
+.artist-grid.list-view {
+    grid-template-columns: 1fr;
+}
 
 /* =====================
    LOADING SKELETONS
